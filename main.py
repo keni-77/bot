@@ -348,7 +348,7 @@ def run_discord_bot():
 ***（※音量注意）***''')
                 yaju_scores[user_id] = yaju_scores.get(user_id, 0) + 10
 
-    @tree.command(name="inmu_rank", description="サーバー内の淫夢度ランキングを表示します")
+    @tree.command(name="inmu_rank", description="サーバー内のスコアランキングを表示します")
     async def inmu_rank(interaction: discord.Interaction):
         await interaction.response.defer()
 
@@ -397,7 +397,7 @@ def run_discord_bot():
 
         # Embed 作成
         embed = discord.Embed(
-            title="淫夢度ランキング（サーバー内）",
+            title="スコアランキング（サーバー内）",
             description="合計スコア",
             color=discord.Color.blue()
         )
@@ -428,9 +428,9 @@ def run_discord_bot():
 
             # メダル付与
             if rank <= 3:
-                ranking_text += f"{medals[rank-1]} **{member.display_name}** — 淫夢度：{score}\n"
+                ranking_text += f"{medals[rank-1]} **{member.display_name}** — スコア：{score}\n"
             else:
-                ranking_text += f"{rank}位：**{member.display_name}** — 淫夢度：{score}\n"
+                ranking_text += f"{rank}位：**{member.display_name}** — スコア：{score}\n"
 
         if not ranking_text:
             ranking_text = "該当するメンバーがいません。"
@@ -461,20 +461,6 @@ def run_discord_bot():
         reading = { 1: "い", 3: "み", 4: "よ", 5: "こ", 6: "ろ", 9: "く" }
         # 読み方に変換
         reading_result = "".join(reading[n] for n in result)
-
-        # 特別な並び（既存）
-        special = [1, 1, 4, 5, 1, 4]
-        zorome1 = [1, 1, 1, 1, 1, 1]
-        zorome3 = [3, 3, 3, 3, 3, 3]
-        zorome4 = [4, 4, 4, 4, 4, 4]
-        zorome5 = [5, 5, 5, 5, 5, 5]
-        zorome6 = [6, 6, 6, 6, 6, 6]
-        zorome9 = [9, 9, 9, 9, 9, 9]
-        ikuikuiku = [1, 9, 1, 9, 1, 9]
-        sikosikosiko = [4, 5, 4, 5, 4, 5]
-        gosigosigosi = [5, 4, 5, 4, 5, 4]
-        miroyomiroyo = [3, 6, 4, 3, 6, 4]
-        
         user_id = interaction.user.id
 
         # ヘルパー: 全要素が同じか
@@ -486,34 +472,12 @@ def run_discord_bot():
             d = result[0]
             # 例: d=3 -> score = 333333
             score = int(str(d) * 6)
-            await interaction.response.send_message(f"@everyone \n結果: {result}\n\n🎉**ゾロ目だゾ**🎉\n獲得点: {score}点")
+            await interaction.response.send_message(f"@everyone \n結果: {result}\n\n🎉**ゾロ目**🎉\n獲得点: {score}点")
             yaju_scores[user_id] = yaju_scores.get(user_id, 0) + score
             return
 
-        # 次に既存の特別並びを判定（順序は既存ロジックに合わせる）
-        if result == special:
-            await interaction.response.send_message(f"@everyone \n結果: {result}\n\n🎉**いい世、来いよ！**🎉")
-            yaju_scores[user_id] = yaju_scores.get(user_id, 0) + 114514
-            return
-        if result == ikuikuiku:
-            await interaction.response.send_message(f"@everyone \n結果: {result}\n\n🎉**イキスギィ！**🎉")
-            yaju_scores[user_id] = yaju_scores.get(user_id, 0) + 191919
-            return
-        if result == sikosikosiko:
-            await interaction.response.send_message(f"@everyone \n結果: {result}\n（放送禁止）\n🎉**やりますねぇ！**🎉")
-            yaju_scores[user_id] = yaju_scores.get(user_id, 0) + 454545
-            return
-        if result == gosigosigosi:
-            await interaction.response.send_message(f"@everyone \n結果: {result}\n（ごしごしごし…）\n🎉**ココアライオン**🎉")
-            yaju_scores[user_id] = yaju_scores.get(user_id, 0) + 545454
-            return
-        if result == miroyomiroyo:
-            await interaction.response.send_message(f"@everyone \n結果: {result}\n\n🎉**見ろよみろよ！**🎉")
-            yaju_scores[user_id] = yaju_scores.get(user_id, 0) + 364364
-            return
-
         # それ以外は通常の読み表示（得点なし）
-        await interaction.response.send_message(f"結果: {result}\n{reading_result}\n残念だったゾ")
+        await interaction.response.send_message(f"結果: {result}\n{reading_result}\n残念だったね")
 
     @tree.command(name="purge_from", description="指定ユーザーの指定キーワードを含むメッセージをチャンネルから削除（管理者専用）")
     @app_commands.describe(
