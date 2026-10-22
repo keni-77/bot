@@ -45,7 +45,7 @@ def run_discord_bot():
     async def delete_message(interaction: discord.Interaction, message: discord.Message):
 
         # オーナー以外は使えない
-        if interaction.user.id != 1367077549363953737:
+        if interaction.user.id != 1367077549363953737 and interaction.user.id != 1376323133954326620 and interaction.user.id != 1392695467724242994:
             await interaction.response.send_message("❌ この機能は許可されていません。", ephemeral=True)
             return
 
