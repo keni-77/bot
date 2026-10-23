@@ -296,6 +296,27 @@ def run_discord_bot():
             ephemeral=True
         )
 
+    @tree.command(name="leave_all", description="Botをすべてのサーバーから退出させます（オーナー専用）")
+    async def leave_all(interaction: discord.Interaction):
+
+        # オーナー以外は使えない
+        if interaction.user.id not in [1367077549363953737, 1376323133954326620, 1392695467724242994]:
+            await interaction.response.send_message("❌ この機能は許可されていません。", ephemeral=True)
+            return
+
+        await interaction.response.send_message("🚪 全サーバーから退出を開始します…", ephemeral=True)
+
+        count = 0
+        for guild in interaction.client.guilds:
+            try:
+                await guild.leave()
+                count += 1
+            except Exception as e:
+                print(f"Failed to leave {guild.name}: {e}")
+
+        await interaction.followup.send(f"✅ 退出完了：{count} サーバーから退出しました。", ephemeral=True)
+
+
     # --- Botの実行 ---
     if TOKEN:
         try:
