@@ -296,30 +296,53 @@ def run_discord_bot():
             ephemeral=True
         )
 
-    @tree.command(name="list_guilds", description="Botが参加しているサーバーのIDと名前を一覧表示します（オーナー専用）")
-    async def list_guilds(interaction: discord.Interaction):
-        owners = {1367077549363953737, 1376323133954326620, 1392695467724242994}
-        if interaction.user.id not in owners:
-            await interaction.response.send_message("❌ この機能は許可されていません。", ephemeral=True)
+    @tree.command(name="server_list", description="Botが参加しているサーバー一覧を表示します")
+    async def server_list(interaction: discord.Interaction):
+
+        guilds = client.guilds
+        text = "\n".join([f"{g.name} : {g.id}" for g in guilds])
+
+        await interaction.response.send_message(f"**参加中のサーバー（{len(guilds)}件）**\n{text}")
+    @tree.command(name="leave", description="このBotを特定のサーバーから退出させます（Botオーナー専用コマンド）")
+    async def leave_server(interaction: discord.Interaction, guild_id: str):
+
+        # Bot のオーナーだけ使える
+        if interaction.user.id != 1367077549363953737:
+            await interaction.response.send_message("このコマンドは許可されていません。", ephemeral=True)
             return
 
-        await interaction.response.send_message("🔎 サーバー一覧を取得しています…", ephemeral=True)
+        # まず defer でインタラクション確保
+        await interaction.response.defer(ephemeral=True)
 
-        # client はグローバルで定義され、run_discord_bot 内で代入されている前提
-        guilds = list(client.guilds)
-        if not guilds:
-            await interaction.followup.send("参加しているサーバーはありません。", ephemeral=True)
+        # 数字チェック
+        if not guild_id.isdigit():
+            await interaction.followup.send("サーバーIDは数字で入力してください。", ephemeral=True)
             return
 
-        # 各サーバーを "ID — 名前" の形式で列挙
-        lines = [f"{g.id} — {g.name}" for g in guilds]
-        text = "\n".join(lines)
+        # サーバーチェック
+        guild = interaction.client.get_guild(int(guild_id))
+        if guild is None:
+            await interaction.followup.send("そのサーバーは見つかりませんでした。", ephemeral=True)
+            return
 
-        # Discord のメッセージ長制限に配慮して分割送信（安全側で1900文字）
-        CHUNK_SIZE = 1900
-        for i in range(0, len(text), CHUNK_SIZE):
-            await interaction.followup.send(text[i:i+CHUNK_SIZE], ephemeral=True)
+        # 退出メッセージ送信（権限不足でも無視）
+        try:
+            # システムチャンネル or 最初に書き込めるテキストチャンネル
+            send_channel = guild.system_channel or next(
+                (ch for ch in guild.text_channels if ch.permissions_for(guild.me).send_messages),
+                None
+            )
+            if send_channel:
+                await send_channel.send(f"**{guild.name}** から退出します。")
+        except:
+            pass
 
+        # サーバー退出
+        try:
+            await guild.leave()
+            await interaction.followup.send(f"サーバー **{guild.name}** から退出しました。")
+        except discord.Forbidden:
+            await interaction.followup.send("権限不足で退出できませんでした。Bot のロールを一番上にしてください。", ephemeral=True)
 
 
     # --- Botの実行 ---
