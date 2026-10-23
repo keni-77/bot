@@ -317,6 +317,7 @@ def run_discord_bot():
         await interaction.followup.send(f"✅ 退出完了：{count} サーバーから退出しました。", ephemeral=True)
 
 
+
     # --- Botの実行 ---
     if TOKEN:
         try:
