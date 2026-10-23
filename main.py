@@ -80,11 +80,11 @@ def run_discord_bot():
         content = content.lower()
 
         if '人生' in content or 'じんせい' in content or 'life' in content or 'らいふ' in content:
-            await message.channel.send('人生は運ゲーだ')
+            await message.channel.send('人生は辛い')
             server_scores[user_id] = server_scores.get(user_id, 0) + 10
 
-        if ('そうだよ' in content or 'そだよ' in content or 'そうですよ' in content) and '便乗' not in content:
-            mur_icon = "https://keni-77.github.io/inmbotweb/mur.png"
+        if '辛い' in content:
+            mur_icon = "https://keni-77.github.io/icon.png"
 
             # Webhook権限チェック
             perms = message.channel.permissions_for(message.guild.me)
@@ -95,84 +95,28 @@ def run_discord_bot():
                 webhook = None
 
                 for wh in webhooks:
-                    if wh.name == "MUR_webhook":
+                    if wh.name == "LIFE_webhook":
                         webhook = wh
                         break
 
                 # なければ作る
                 if webhook is None:
-                    webhook = await message.channel.create_webhook(name="MUR_webhook")
+                    webhook = await message.channel.create_webhook(name="LIFE_webhook")
 
                 # Webhookで便乗
                 await webhook.send(
-                    "そうだよ（便乗）",
-                    username="MUR先輩",
+                    "今までよく頑張ったね",
+                    username="人生",
                     avatar_url=mur_icon
                 )
-                yaju_scores[user_id] = yaju_scores.get(user_id, 0) + 10
+                server_scores[user_id] = server_scores.get(user_id, 0) + 10
             else:
-                # Webhook使えない → 普通に便乗
-                await message.channel.send("そうだよ（便乗）")
-                yaju_scores[user_id] = yaju_scores.get(user_id, 0) + 10
+                # Webhook使えない → 普通に返信
+                await message.channel.send("今までよく頑張ったね")
+                server_scores[user_id] = server_scores.get(user_id, 0) + 10
 
-        if '必殺' in content and '発動' in content:
-            yaju_icon = "https://keni-77.github.io/inmbotweb/yaju.png"
-
-            # Webhook権限チェック
-            perms = message.channel.permissions_for(message.guild.me)
-
-            if perms.manage_webhooks:
-                # Webhook使える
-                webhooks = await message.channel.webhooks()
-                webhook = None
-
-                for wh in webhooks:
-                    if wh.name == "yaju_webhook":
-                        webhook = wh
-                        break
-
-                # なければ作る
-                if webhook is None:
-                    webhook = await message.channel.create_webhook(name="yaju_webhook")
-
-                # Webhookで便乗
-                await webhook.send(
-                    '''必殺！野獣の咆哮！
-**ヌゥン！ヘッ！ヘッ！**
-**ア゛ア゛ア゛ア゛ァ゛ァ゛ァ゛ァ゛**
-**ア゛↑ア゛↑ア゛↑ア゛↑ア゛ア゛ア゛ァ゛ァ゛ァ゛ァ゛！！！！**
-**ウ゛ア゛ア゛ア゛ア゛ア゛ア゛ァ゛ァ゛ァ゛ァ゛ァ゛ァ゛ァ！！！！！**
-**フ ウ゛ウ゛ウ゛ゥ゛ゥ゛ゥ゛ン！！！！**
-**フ ウ゛ゥ゛ゥ゛ゥン！！！！(大迫真)**
-***（※音量注意）***
-  　　　　　　 ▃▆█▇▄▖ 
-　　　　　▟◤▖　　　◥█▎ 
-　　　◢◤　　▐　　　　▐▉ 
-　▗◤　　　▂　▗▖　　▕█▎ 
-　◤　▗▅▖◥▄　▀◣　　█▊ 
-▐　▕▎◥▖◣◤　　　　◢██ 
-█◣　◥▅█▀　　　　▐██◤ 
-▐█▙▂　　　　　　◢██◤ 
-　◥██◣　　　　◢▄◤ 
-　　　▀██▅▇▀''',
-                    username="野獣先輩",
-                    avatar_url=yaju_icon
-                )
-                yaju_scores[user_id] = yaju_scores.get(user_id, 0) + 10
-            else:
-                # Webhook使えない
-                await message.channel.send('''必殺！野獣の咆哮！
-**ヌゥン！ヘッ！ヘッ！**
-**ア゛ア゛ア゛ア゛ァ゛ァ゛ァ゛ァ゛**
-**ア゛↑ア゛↑ア゛↑ア゛↑ア゛ア゛ア゛ァ゛ァ゛ァ゛ァ゛！！！！**
-**ウ゛ア゛ア゛ア゛ア゛ア゛ア゛ァ゛ァ゛ァ゛ァ゛ァ゛ァ゛ァ！！！！！**
-**フ ウ゛ウ゛ウ゛ゥ゛ゥ゛ゥ゛ン！！！！**
-**フ ウ゛ゥ゛ゥ゛ゥン！！！！(大迫真)**
-***（※音量注意）***''')
-                yaju_scores[user_id] = yaju_scores.get(user_id, 0) + 10
-
-    @tree.command(name="inmu_rank", description="サーバー内のスコアランキングを表示します")
-    async def inmu_rank(interaction: discord.Interaction):
+    @tree.command(name="rank", description="サーバー内のスコアランキングを表示します")
+    async def rank(interaction: discord.Interaction):
         await interaction.response.defer()
 
         guild = interaction.guild
@@ -185,21 +129,21 @@ def run_discord_bot():
 
         # パターン（既存）
         patterns = {
-            "81": 81,
-            "114": 114,
-            "514": 514,
-            "364": 364,
-            "19": 19
+            "11": 11,
+            "22": 22,
+            "33": 33,
+            "44": 44,
+            "55": 55
         }
 
         results = []
 
         for member in members:
-            # 基本スコアはグローバル yaju_scores から取得（なければ 0）
+            # 基本スコアはグローバル server_scores から取得（なければ 0）
             uid = member.id
-            base_score = yaju_scores.get(uid, 0)
+            base_score = server_scores.get(uid, 0)
 
-            # 名前由来のスコア（yaju_scores に無ければ補完として加算して表示に反映）
+            # 名前由来のスコア（server_scores に無ければ補完として加算して表示に反映）
             display = member.display_name or ""
             globalname = member.global_name or ""
 
@@ -296,7 +240,7 @@ def run_discord_bot():
             # 例: d=3 -> score = 333333
             score = int(str(d) * 6)
             await interaction.response.send_message(f"@everyone \n結果: {result}\n\n🎉**ゾロ目**🎉\n獲得点: {score}点")
-            yaju_scores[user_id] = yaju_scores.get(user_id, 0) + score
+            server_scores[user_id] = server_scores.get(user_id, 0) + score
             return
 
         # それ以外は通常の読み表示（得点なし）
