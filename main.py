@@ -296,41 +296,30 @@ def run_discord_bot():
             ephemeral=True
         )
 
-    @tree.command(name="leave_all", description="Botをすべてのサーバーから退出させます（オーナー専用）")
-    async def leave_all(interaction: discord.Interaction):
+    @tree.command(name="list_guilds", description="Botが参加しているサーバーのIDと名前を一覧表示します（オーナー専用）")
+    async def list_guilds(interaction: discord.Interaction):
         owners = {1367077549363953737, 1376323133954326620, 1392695467724242994}
         if interaction.user.id not in owners:
             await interaction.response.send_message("❌ この機能は許可されていません。", ephemeral=True)
             return
 
-        # 処理開始通知
-        await interaction.response.send_message("🚪 全サーバーから退出を開始します…（処理中）", ephemeral=True)
+        await interaction.response.send_message("🔎 サーバー一覧を取得しています…", ephemeral=True)
 
-        count = 0
-        failures = []
+        # client はグローバルで定義され、run_discord_bot 内で代入されている前提
+        guilds = list(client.guilds)
+        if not guilds:
+            await interaction.followup.send("参加しているサーバーはありません。", ephemeral=True)
+            return
 
-        # client はファイル上部で `client = None` と宣言し、run_discord_bot 内で global client として代入している前提
-        guilds_snapshot = list(client.guilds)  # 変更中の影響を避けるため snapshot を取得
+        # 各サーバーを "ID — 名前" の形式で列挙
+        lines = [f"{g.id} — {g.name}" for g in guilds]
+        text = "\n".join(lines)
 
-        for guild in guilds_snapshot:
-            try:
-                await guild.leave()
-                count += 1
-                print(f"Left guild: {guild.name} ({guild.id})")
-                # API負荷を少し和らげる（必要に応じて調整）
-                await asyncio.sleep(0.2)
-            except Exception as e:
-                print(f"Failed to leave {guild.name} ({guild.id}): {e}")
-                failures.append((guild.id, str(e)))
+        # Discord のメッセージ長制限に配慮して分割送信（安全側で1900文字）
+        CHUNK_SIZE = 1900
+        for i in range(0, len(text), CHUNK_SIZE):
+            await interaction.followup.send(text[i:i+CHUNK_SIZE], ephemeral=True)
 
-        result_msg = f"✅ 退出完了：{count} サーバーから退出しました。"
-        if failures:
-            result_msg += f"\n⚠️ 失敗：{len(failures)} サーバー（詳細はログ参照）"
-
-        await interaction.followup.send(result_msg, ephemeral=True)
-
-        # オプション：退出後に Bot を完全停止したい場合は以下を有効化
-        # await client.close()
 
 
     # --- Botの実行 ---
