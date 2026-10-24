@@ -82,38 +82,6 @@ def run_discord_bot():
             await message.channel.send('人生は辛い')
             server_scores[user_id] = server_scores.get(user_id, 0) + 10
 
-        if '辛い' in content:
-            LIFE_icon = "https://keni-77.github.io/icon.png"
-
-            # Webhook権限チェック
-            perms = message.channel.permissions_for(message.guild.me)
-
-            if perms.manage_webhooks:
-                # Webhook使える
-                webhooks = await message.channel.webhooks()
-                webhook = None
-
-                for wh in webhooks:
-                    if wh.name == "LIFE_webhook":
-                        webhook = wh
-                        break
-
-                # なければ作る
-                if webhook is None:
-                    webhook = await message.channel.create_webhook(name="LIFE_webhook")
-
-                # Webhookで便乗
-                await webhook.send(
-                    "今までよく頑張ったね",
-                    username="人生",
-                    avatar_url=LIFE_icon
-                )
-                server_scores[user_id] = server_scores.get(user_id, 0) + 10
-            else:
-                # Webhook使えない → 普通に返信
-                await message.channel.send("今までよく頑張ったね")
-                server_scores[user_id] = server_scores.get(user_id, 0) + 10
-
     @tree.command(name="rank", description="サーバー内のスコアランキングを表示します")
     async def rank(interaction: discord.Interaction):
         await interaction.response.defer()
