@@ -65,6 +65,8 @@ def run_discord_bot():
     async def on_message(message):
         if message.author == client.user:
             return
+        if message.guild is None:
+            return  # DMは無視
 
         user_id = message.author.id
         if user_id not in server_scores:
