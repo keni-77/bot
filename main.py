@@ -84,7 +84,7 @@ def run_discord_bot():
             server_scores[user_id] = server_scores.get(user_id, 0) + 10
 
         if '辛い' in content:
-            mur_icon = "https://keni-77.github.io/icon.png"
+            LIFE_icon = "https://keni-77.github.io/icon.png"
 
             # Webhook権限チェック
             perms = message.channel.permissions_for(message.guild.me)
@@ -107,7 +107,7 @@ def run_discord_bot():
                 await webhook.send(
                     "今までよく頑張ったね",
                     username="人生",
-                    avatar_url=mur_icon
+                    avatar_url=LIFE_icon
                 )
                 server_scores[user_id] = server_scores.get(user_id, 0) + 10
             else:
