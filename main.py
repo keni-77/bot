@@ -18,20 +18,23 @@ bot_start_attempted = False
 # -----------------
 # Discord Bot本体の起動関数
 # -----------------
+
+client = None
+
 # ユーザーごとのスコアを保存
 server_scores = {}
 
 def run_discord_bot():
     global bot_start_attempted
-    
-    # 環境変数からトークンを取得
+    global client
+
     TOKEN = os.getenv("DISCORD_TOKEN")
-    
-    # 元のコードで使用されていた Intents.all() を使用
+
     intents = discord.Intents.all()
+    intents.message_content = True
+    intents.members = True
+
     client = discord.Client(intents=intents)
-    intents.message_content = True  # メッセージ内容の受信を有効化
-    intents.messages = True  # メッセージの受信を有効化
     tree = app_commands.CommandTree(client)
     
     @client.event
