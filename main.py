@@ -66,12 +66,6 @@ def run_discord_bot():
         if message.author == client.user:
             return
 
-        # 日付リセットチェック（もし実装済みの reset_scores_if_needed があれば呼ぶ）
-        try:
-            reset_scores_if_needed()
-        except:
-            pass
-
         user_id = message.author.id
         if user_id not in server_scores:
             server_scores[user_id] = 0
@@ -316,7 +310,7 @@ def run_discord_bot():
             return
 
         # サーバーチェック
-        guild = interaction.client.get_guild(int(guild_id))
+        guild = client.get_guild(int(guild_id))
         if guild is None:
             await interaction.followup.send("そのサーバーは見つかりませんでした。", ephemeral=True)
             return
