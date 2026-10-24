@@ -296,37 +296,6 @@ def run_discord_bot():
             ephemeral=True
         )
 
-    @tree.command(name="server_list", description="Botが参加しているサーバーのIDと名前を一覧表示します（オーナー専用）")
-    async def server_list(interaction: discord.Interaction):
-        owners = {1367077549363953737, 1376323133954326620, 1392695467724242994}
-        if interaction.user.id not in owners:
-            await interaction.response.send_message("❌ この機能は許可されていません。", ephemeral=True)
-            return
-
-        # 長時間処理に備えて defer（ephemeral にして結果をオーナーだけに表示）
-        await interaction.response.defer(ephemeral=True)
-
-        # client がグローバルに定義されている前提
-        guilds = list(client.guilds)
-        total = len(guilds)
-        if total == 0:
-            await interaction.followup.send("参加しているサーバーはありません。", ephemeral=True)
-            return
-
-        # "ID — 名前" の行を作成
-        lines = [f"{g.id} — {g.name}" for g in guilds]
-        text = "\n".join(lines)
-
-        # Discord のメッセージ長制限に配慮して分割送信（安全側で1900文字）
-        CHUNK_SIZE = 1900
-        for i in range(0, len(text), CHUNK_SIZE):
-            chunk = text[i:i+CHUNK_SIZE]
-            # followup.send を使って分割で送る（ephemeral）
-            await interaction.followup.send(chunk, ephemeral=True)
-
-        # 最後に合計件数を一行で送る（任意）
-        await interaction.followup.send(f"**参加中のサーバー（{total}件）を表示しました。**", ephemeral=True)
-
     @tree.command(name="leave", description="このBotを特定のサーバーから退出させます（Botオーナー専用コマンド）")
     async def leave_server(interaction: discord.Interaction, guild_id: str):
 
